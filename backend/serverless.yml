@@ -1,8 +1,8 @@
 # TODO: Change the name of the org
-org: richie
+org: richie457
 app: serverless-richie-app
 service: serverless-richie-app
-
+frameworkVersion: "3"
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
