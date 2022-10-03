@@ -8,7 +8,7 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 // import { getUserId } from '../utils'
 
 export const handler = middy(
-  async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  async (_events: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // const todoId = event.pathParameters.todoId
     // TODO: Remove a TODO item by id
 

@@ -57,11 +57,48 @@ functions:
           path: todos
           cors: true
           Authorizer: Auth
-        iamRoleStatements:
-          - Effect: "Allow"
-            Action:
-              - dynamodb:GetItem
-            Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
+          iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                - dynamodb:GetItem
+              Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
+  CreateTodo:
+    handler: src/lambda/http/createTodo.handler
+    events:
+      - http:
+          method: post
+          path: todos
+          cors: true
+          Authorizer: Auth
+          request:
+            schemas:
+              application/json: ${file(models/create-todo-model.json)}
+          iamRoleStatements:
+            - Effect: "Allow"
+              Action:
+                - dynamodb:PutItem
+              Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/mytable"
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    events:
+      - http:
+          method: patch
+          path: todos/{todoId}
+          cors: true # <-- CORS!
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          cors: true
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: todos/{todoId}/attachment
+          cors: true
   # api:
   #   handler: handler.handler
   #   events:
@@ -75,8 +112,23 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-        KeySchema:
           - AttributeName: todoId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
             KeyType: HASH
+          - AttributeName: todoId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: ${self:provider.environment.TODOS_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # What attributes will be copied to an index
