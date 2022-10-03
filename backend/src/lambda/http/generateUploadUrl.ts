@@ -8,8 +8,8 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 // import { getUserId } from '../utils'
 
 export const handler = middy(
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
+  async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    // const todoId = event.pathParameters.todoId
     // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
 
 

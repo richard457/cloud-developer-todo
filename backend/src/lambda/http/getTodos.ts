@@ -10,8 +10,8 @@ import { cors } from 'middy/middlewares'
 // TODO: Get all TODO items for a current user
 
 export const handler = middy(
-  async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
+  async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+    // const todoId = event.pathParameters.todoId
     // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
 
 
