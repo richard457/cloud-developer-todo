@@ -3,10 +3,13 @@
   "title": "group",
   "type": "object",
   "properties": {
-    "name": {
+    "todoName": {
       "type": "string"
     },
     "dueDate": {
+      "type": "string"
+    },
+    "refKey": {
       "type": "string"
     },
     "userId": {
@@ -26,12 +29,13 @@
     }
   },
   "required": [
-    "name",
+    "todoName",
     "dueDate",
     "userId",
     "createdAt",
     "todoId",
-    "done"
+    "done",
+    "refKey"
   ],
   "additionalProperties": false
 }

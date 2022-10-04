@@ -96,14 +96,14 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: refKey
             AttributeType: S
           - AttributeName: todoId
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: refKey
             KeyType: HASH
           - AttributeName: todoId
             KeyType: RANGE
@@ -112,7 +112,7 @@ resources:
         LocalSecondaryIndexes:
           - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
             KeySchema:
-              - AttributeName: userId
+              - AttributeName: refKey
                 KeyType: HASH
               - AttributeName: createdAt
                 KeyType: RANGE

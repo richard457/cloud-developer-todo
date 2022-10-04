@@ -26,6 +26,7 @@ export async function createTodo(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
     }
+
   })
   return response.data.item
 }

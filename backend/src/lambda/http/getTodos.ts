@@ -15,8 +15,13 @@ export const handler = middy(
 
     try {
       const result = await dynamoDB
-        .scan({
+        .query({
           TableName: 'Todos-dev',
+          ExpressionAttributeValues: {
+            ':refKey': 'todos',
+          },
+          KeyConditionExpression: 'refKey = :refKey',
+          ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate',
         })
         .promise();
       todos = result.Items;
