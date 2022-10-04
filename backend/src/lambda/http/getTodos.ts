@@ -2,25 +2,39 @@ import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
+import { cors, httpErrorHandler } from 'middy/middlewares'
 
-// import { getTodosForUser as getTodosForUser } from '../../businessLogic/todos'
-// import { getUserId } from '../utils';
-
-// TODO: Get all TODO items for a current user
+// import * as AWS from 'aws-sdk'
+// import * as AWSXRay from 'aws-xray-sdk'
+import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 
 export const handler = middy(
   async (_event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    // const todoId = event.pathParameters.todoId
-    // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
+    const dynamoDB = new DocumentClient();
+    let todos: DocumentClient.ItemList;
 
-
-    return undefined
+    try {
+      const result = await dynamoDB
+        .scan({
+          TableName: 'Todos-dev',
+        })
+        .promise();
+      todos = result.Items;
+    } catch (error) {
+      return {
+        statusCode: 222,
+        body: JSON.stringify({ error }),
+      };
+    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify(todos),
+    };
   }
 )
 
 handler
-  // .use(httpErrorHandler())
+  .use(httpErrorHandler())
   .use(
     cors({
       credentials: true
