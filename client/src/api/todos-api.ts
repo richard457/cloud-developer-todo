@@ -21,7 +21,6 @@ export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
 ): Promise<Todo> {
-  newTodo.refKey = "todos"
   const response = await Axios.post(`${apiEndpoint}/todos`, JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
@@ -68,7 +67,8 @@ export async function getUploadUrl(
       'Authorization': `Bearer ${idToken}`
     }
   })
-  return response.data.uploadUrl
+  console.log("upload URL", response.data.url)
+  return response.data.url
 }
 
 export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
