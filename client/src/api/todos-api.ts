@@ -21,6 +21,7 @@ export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
 ): Promise<Todo> {
+  newTodo.refKey = "todos"
   const response = await Axios.post(`${apiEndpoint}/todos`, JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
@@ -28,6 +29,7 @@ export async function createTodo(
     }
 
   })
+  console.log("can create item", response.data)
   return response.data.item
 }
 

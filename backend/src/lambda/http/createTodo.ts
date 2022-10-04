@@ -9,6 +9,7 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const dynamoDB = new DocumentClient();
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    newTodo.refKey = "todos";
     try {
       await dynamoDB
         .put({

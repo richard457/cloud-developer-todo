@@ -34,8 +34,7 @@
     "userId",
     "createdAt",
     "todoId",
-    "done",
-    "refKey"
+    "done"
   ],
   "additionalProperties": false
 }
