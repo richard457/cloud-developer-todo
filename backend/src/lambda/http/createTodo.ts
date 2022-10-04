@@ -15,16 +15,13 @@ export const handler = middy(
           TableName: 'Todos-dev',
           Item: newTodo,
         })
-        .promise(); // to return a promise instead
+        .promise();
     } catch (error) {
-      // console.error(error);
       return {
         statusCode: 222,
         body: JSON.stringify({ error }),
       };
     }
-
-
     return {
       statusCode: 201,
       body: JSON.stringify(newTodo),
