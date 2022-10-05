@@ -14,7 +14,7 @@ provider:
   name: aws
   runtime: nodejs14.x
   lambdaHashingVersion: "20201221"
-
+  cors: true
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   tracing:
@@ -33,6 +33,9 @@ provider:
             - dynamodb:DeleteItem
             - xray:PutTelemetryRecords
             - xray:PutTraceSegments
+            - s3:GetObject
+            - s3:PutObject
+            - s3:PutObjectAcl
           Resource:
             # - Fn::GetAtt: [UsersTable, Arn]
             - "*"
@@ -56,25 +59,27 @@ functions:
           method: get
           path: todos
           cors: true
-          Authorizer: Auth
+          authorizer: Auth
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
       - http:
           method: post
           path: todos
-          cors: true
-          Authorizer: Auth
           request:
             schemas:
               application/json: ${file(models/create-todo-model.json)}
+          authorizer: Auth
+          cors: true
+
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
       - http:
           method: patch
           path: todos/{todoId}
-          cors: true # <-- CORS!
+          cors: true
+          authorizer: Auth
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
@@ -89,9 +94,19 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
+          authorizer: Auth
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: "AWS::ApiGateway::GatewayResponse"
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: "ApiGatewayRestApi"
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -99,8 +114,6 @@ resources:
           - AttributeName: refKey
             AttributeType: S
           - AttributeName: todoId
-            AttributeType: S
-          - AttributeName: createdAt
             AttributeType: S
         KeySchema:
           - AttributeName: refKey
@@ -114,7 +127,23 @@ resources:
             KeySchema:
               - AttributeName: refKey
                 KeyType: HASH
-              - AttributeName: createdAt
+              - AttributeName: todoId
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # What attributes will be copied to an index
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000

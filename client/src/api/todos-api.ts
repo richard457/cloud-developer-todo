@@ -21,6 +21,12 @@ export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
 ): Promise<Todo> {
+  newTodo.todoId = `${(Math.random() + 1).toString(36).substring(2)}`
+  newTodo.userId = `${(Math.random() + 1).toString(36).substring(2)}`
+  newTodo.createdAt = newTodo.dueDate
+  newTodo.attachmentUrl = ""
+  newTodo.done = false
+  console.log('about to create todo now..', newTodo)
   const response = await Axios.post(`${apiEndpoint}/todos`, JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
@@ -29,7 +35,7 @@ export async function createTodo(
 
   })
   console.log("can create item", response.data)
-  return response.data.item
+  return response.data
 }
 
 export async function patchTodo(
@@ -72,5 +78,6 @@ export async function getUploadUrl(
 }
 
 export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {
+
   await Axios.put(uploadUrl, file)
 }

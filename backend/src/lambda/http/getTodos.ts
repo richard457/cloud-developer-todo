@@ -19,7 +19,7 @@ export const handler = middy(
             ':refKey': 'todos',
           },
           KeyConditionExpression: 'refKey = :refKey',
-          ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate',
+          ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate,attachmentUrl',
         })
         .promise();
       todos = result.Items;

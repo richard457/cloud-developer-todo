@@ -34,7 +34,8 @@
     "userId",
     "createdAt",
     "todoId",
-    "done"
+    "done",
+    "attachmentUrl"
   ],
   "additionalProperties": false
 }

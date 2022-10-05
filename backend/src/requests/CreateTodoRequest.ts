@@ -4,5 +4,6 @@
 export interface CreateTodoRequest {
   name: string
   dueDate: string,
-  refKey?: string
+  refKey?: string,
+  userId: String
 }
