@@ -6,24 +6,24 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 import * as AWS from 'aws-sdk'
 import { getSingleTodo, updateTodo } from '../../businessLogic/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-// import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
 
-    const s3 = new AWS.S3({ region: 'us-east-1', signatureVersion: 'v4' });
-    const tod = `${todoId}${(Math.random() + 1).toString(36).substring(2)}`
+    const s3 = new AWS.S3({ region: 'us-east-1' });
+    const tod = `${todoId}`
     const url = s3.getSignedUrl('putObject', {
-      Bucket: 'serverless-c4-todo-images-dev',
+      Bucket: 'richie-app-dev-attachmentsbucket-eou7xk8j16a4',
       Key: tod,
       Expires: 3600,
+      ContentType: 'image/png',
       ACL: 'public-read',
     });
-    // update todo
+    let fileUrl: string = "https://richie-app-dev-attachmentsbucket-eou7xk8j16a4.s3.amazonaws.com/" + todoId
     let item = await getSingleTodo(todoId)
-    updateTodo(item as UpdateTodoRequest, todoId, url)
+    updateTodo(item as UpdateTodoRequest, todoId, fileUrl)
     let itemu = await getSingleTodo(todoId)
     return {
       statusCode: 200,

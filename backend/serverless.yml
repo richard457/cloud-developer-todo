@@ -1,6 +1,6 @@
 org: richie457
-app: serverless-richie-app
-service: aws-node-express-dynamodb-api-project
+app: richie-app
+service: richie-app
 frameworkVersion: "3"
 plugins:
   - serverless-webpack
