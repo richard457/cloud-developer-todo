@@ -37,7 +37,6 @@ provider:
             - s3:PutObject
             - s3:PutObjectAcl
           Resource:
-            # - Fn::GetAtt: [UsersTable, Arn]
             - "*"
   environment:
     USERS_TABLE: ${self:custom.tableName}
@@ -92,7 +91,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: todos/attachment
           cors: true
           authorizer: Auth
 
