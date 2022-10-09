@@ -9,13 +9,13 @@ export const generateAttachemnt = async (id: string, imageType: string) => {
     const s3 = new AWS.S3({ region: 'us-east-1' });
     const tod = `${id}`
     const url = s3.getSignedUrl('putObject', {
-        Bucket: 'attachements-eou7xk8j16a4',
+        Bucket: 'attachementseou7xk8j16a4',
         Key: tod,
         Expires: 3600,
         ContentType: imageType,
         ACL: 'public-read',
     });
-    let fileUrl: string = "https://richie-app-dev-attachmentsbucket-eou7xk8j16a4.s3.amazonaws.com/" + id
+    let fileUrl: string = "https://attachementseou7xk8j16a4.s3.amazonaws.com/" + id
     let item = await getSingleTodo(id)
     await updateTodo(item as UpdateTodoRequest, id, fileUrl)
     let itemu = await getSingleTodo(id)
