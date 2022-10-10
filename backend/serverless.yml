@@ -41,6 +41,9 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+    Properties:
+      TracingConfig:
+        Mode: Active
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -57,6 +60,9 @@ functions:
               application/json: ${file(models/create-todo-model.json)}
           authorizer: Auth
           cors: true
+    Properties:
+      TracingConfig:
+        Mode: Active
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -72,6 +78,9 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth
+    Properties:
+      TracingConfig:
+        Mode: Active
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -84,6 +93,9 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
+    Properties:
+      TracingConfig:
+        Mode: Active
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -97,6 +109,9 @@ functions:
           path: todos/attachment
           cors: true
           authorizer: Auth
+    Properties:
+      TracingConfig:
+        Mode: Active
     iamRoleStatements:
       - Effect: Allow
         Action:
