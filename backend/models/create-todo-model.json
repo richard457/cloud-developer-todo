@@ -32,7 +32,6 @@
   "required": [
     "todoName",
     "dueDate",
-    "userId",
     "createdAt",
     "todoId",
     "done",

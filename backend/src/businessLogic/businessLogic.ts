@@ -1,7 +1,10 @@
-
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import { getUserId } from "../lambda/utils";
+import { CreateTodoRequest } from "../requests/CreateTodoRequest";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 import { createLogger } from "../utils/logger";
+
 const logger = createLogger('TodosAccess')
 
 export const deleteTodo = async (todoId: string) => {
@@ -29,22 +32,6 @@ export const deleteTodo = async (todoId: string) => {
     }
 }
 
-export const getSingleTodo = async (todoId: string) => {
-    logger.info("get single todo")
-    const dynamoDB = new DocumentClient();
-    const result = await dynamoDB
-        .query({
-            TableName: 'Todos-dev',
-            ExpressionAttributeValues: {
-                ':todoId': todoId,
-                ':refKey': 'todos'
-            },
-            KeyConditionExpression: 'todoId = :todoId and refKey = :refKey',
-            ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate,attachmentUrl',
-        })
-        .promise();
-    return result.Items[0];
-}
 
 export const updateTodo = async (todo: UpdateTodoRequest, todoId: string, attachmentUrl: string) => {
     logger.info("updating todo")
@@ -93,5 +80,30 @@ export const updateTodo = async (todo: UpdateTodoRequest, todoId: string, attach
     return {
         statusCode: 200,
         body: JSON.stringify(updatedTodo),
+    };
+}
+
+export const createTodo = async (event: APIGatewayProxyEvent) => {
+    logger.info('creating todo')
+    const dynamoDB = new DocumentClient();
+    const newTodo: CreateTodoRequest = JSON.parse(event.body)
+    newTodo.refKey = "todos";
+    newTodo.userId = getUserId(event)
+    try {
+        await dynamoDB
+            .put({
+                TableName: 'Todos-dev',
+                Item: newTodo,
+            })
+            .promise();
+    } catch (error) {
+        return {
+            statusCode: 222,
+            body: JSON.stringify({ error }),
+        };
+    }
+    return {
+        statusCode: 201,
+        body: JSON.stringify(newTodo),
     };
 }

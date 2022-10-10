@@ -12,17 +12,7 @@ export const handler = middy(
 
     let imageType = event.queryStringParameters.type
     return generateAttachemnt(id, imageType)
-    // return {
-    //   statusCode: 200,
-    //   body: JSON.stringify(
-    //     {
-    //       id,
-    //       imageType
-    //     },
-    //     null,
-    //     2
-    //   ),
-    // };
+
 
   }
 )

@@ -1,7 +1,8 @@
 import * as AWS from "aws-sdk";
+import { updateTodo } from "../businessLogic/businessLogic";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 import { createLogger } from "../utils/logger";
-import { getSingleTodo, updateTodo } from "./todosAcess";
+import { getSingleTodo } from "./todos";
 const logger = createLogger('TodosAccess')
 
 export const generateAttachemnt = async (id: string, imageType: string) => {

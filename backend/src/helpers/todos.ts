@@ -1,37 +1,30 @@
-import { APIGatewayProxyEvent } from "aws-lambda";
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
-import { CreateTodoRequest } from "../requests/CreateTodoRequest";
+import { getUserId } from "../lambda/utils";
 import { createLogger } from "../utils/logger";
 const logger = createLogger('TodosAccess')
 
-export const createTodo = async (event: APIGatewayProxyEvent) => {
-    logger.info('creating todo')
+export const getSingleTodo = async (todoId: string) => {
+    logger.info("get single todo")
     const dynamoDB = new DocumentClient();
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
-    newTodo.refKey = "todos";
-    try {
-        await dynamoDB
-            .put({
-                TableName: 'Todos-dev',
-                Item: newTodo,
-            })
-            .promise();
-    } catch (error) {
-        return {
-            statusCode: 222,
-            body: JSON.stringify({ error }),
-        };
-    }
-    return {
-        statusCode: 201,
-        body: JSON.stringify(newTodo),
-    };
+    const result = await dynamoDB
+        .query({
+            TableName: 'Todos-dev',
+            ExpressionAttributeValues: {
+                ':todoId': todoId,
+                ':refKey': 'todos'
+            },
+            KeyConditionExpression: 'todoId = :todoId and refKey = :refKey',
+            ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate,attachmentUrl',
+        })
+        .promise();
+    return result.Items[0];
 }
 
-export const getTodos = async () => {
+export const getTodos = async (event) => {
     logger.info("getting all todos")
     const dynamoDB = new DocumentClient();
     let todos: DocumentClient.ItemList;
+    let userId: string = getUserId(event)
     try {
         const result = await dynamoDB
             .query({
@@ -43,7 +36,7 @@ export const getTodos = async () => {
                 ProjectionExpression: 'todoId, createdAt,userId,done,todoName,dueDate,attachmentUrl',
             })
             .promise();
-        todos = result.Items;
+        todos = result.Items.filter((e) => e.userId == userId);
     } catch (error) {
         return {
             statusCode: 222,
