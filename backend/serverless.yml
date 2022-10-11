@@ -7,8 +7,12 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
   - serverless-plugin-aws-alerts
+  - serverless-plugin-metric
 custom:
   tableName: "users-table-${sls:stage}"
+  metrics:
+    - name: AppLevelMetrics
+      pattern: "{ $.statusCode != 200 }"
   alerts:
     stages:
       - dev
