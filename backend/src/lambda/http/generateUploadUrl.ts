@@ -12,8 +12,6 @@ export const handler = middy(
 
     let imageType = event.queryStringParameters.type
     return generateAttachemnt(id, imageType)
-
-
   }
 )
 

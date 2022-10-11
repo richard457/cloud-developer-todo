@@ -6,10 +6,21 @@ plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
-
+  - serverless-plugin-aws-alerts
 custom:
   tableName: "users-table-${sls:stage}"
-
+  alerts:
+    stages:
+      - dev
+    topics:
+      alarm:
+        topic: ${self:provider.stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: beastar457@gmail.com
+    alarms:
+      - functionErrors
+      - functionThrottles
 provider:
   name: aws
   runtime: nodejs14.x
@@ -20,6 +31,13 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
+  iamRoleStatements:
+    - Effect: "Allow" # xray permissions (required)
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
   environment:
     USERS_TABLE: ${self:custom.tableName}
     TODOS_TABLE: Todos-${self:provider.stage}
@@ -35,6 +53,7 @@ functions:
     handler: src/lambda/auth/auth0Authorizer.handler
   GetTodos:
     handler: src/lambda/http/getTodos.handler
+    tracing: "true" # overrides provider settings (opt out)
     events:
       - http:
           method: get
@@ -48,9 +67,12 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
+    tracing: "true" # overrides provider settings (opt out)
     events:
       - http:
           method: post
@@ -68,14 +90,20 @@ functions:
         Action:
           - dynamodb:PutObject
           - dynamodb:PutItem
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
+    tracing: "true" # overrides provider settings (opt out)
     events:
       - http:
           method: patch
           path: todos/{todoId}
+          request:
+            schemas:
+              application/json: ${file(models/update-todo-model.json)}
           cors: true
           authorizer: Auth
     Properties:
@@ -85,9 +113,12 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
+    tracing: "true" # overrides provider settings (opt out)
     events:
       - http:
           method: delete
@@ -100,9 +131,12 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
+    tracing: "true" # overrides provider settings (opt out)
     events:
       - http:
           method: post
@@ -119,6 +153,8 @@ functions:
           - dynamodb:PutItem
           - dynamodb:Query
           - dynamodb:UpdateItem
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 resources:
