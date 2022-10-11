@@ -25,19 +25,11 @@ provider:
   name: aws
   runtime: nodejs14.x
   lambdaHashingVersion: "20201221"
-  cors: true
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
   tracing:
     lambda: true
     apiGateway: true
-  iamRoleStatements:
-    - Effect: "Allow" # xray permissions (required)
-      Action:
-        - "xray:PutTraceSegments"
-        - "xray:PutTelemetryRecords"
-      Resource:
-        - "*"
   environment:
     USERS_TABLE: ${self:custom.tableName}
     TODOS_TABLE: Todos-${self:provider.stage}
@@ -60,16 +52,16 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
-    Properties:
-      TracingConfig:
-        Mode: Active
+
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - "*"
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     tracing: "true" # overrides provider settings (opt out)
@@ -82,9 +74,7 @@ functions:
               application/json: ${file(models/create-todo-model.json)}
           authorizer: Auth
           cors: true
-    Properties:
-      TracingConfig:
-        Mode: Active
+
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -92,7 +82,9 @@ functions:
           - dynamodb:PutItem
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - "*"
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -106,16 +98,16 @@ functions:
               application/json: ${file(models/update-todo-model.json)}
           cors: true
           authorizer: Auth
-    Properties:
-      TracingConfig:
-        Mode: Active
+
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - "*"
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     tracing: "true" # overrides provider settings (opt out)
@@ -124,16 +116,16 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
-    Properties:
-      TracingConfig:
-        Mode: Active
+
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - "*"
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     tracing: "true" # overrides provider settings (opt out)
@@ -143,9 +135,7 @@ functions:
           path: todos/attachment
           cors: true
           authorizer: Auth
-    Properties:
-      TracingConfig:
-        Mode: Active
+
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -155,7 +145,9 @@ functions:
           - dynamodb:UpdateItem
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource:
+          - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+          - "*"
 
 resources:
   Resources:
