@@ -1,12 +1,12 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 import { createLogger } from "../utils/logger";
+import { enableTracing } from "../utils/tracing";
 
 const logger = createLogger('TodosAccess')
 
 export const updateTodo = async (todo: UpdateTodoRequest, todoId: string, attachmentUrl: string) => {
     logger.info("updating todo")
-    const dynamoDB = new DocumentClient();
+    const dynamoDB = new enableTracing.DynamoDB.DocumentClient()
 
     const { name, done } = todo;
     const updatedAttributes = [];

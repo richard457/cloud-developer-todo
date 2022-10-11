@@ -1,11 +1,12 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import { createLogger } from "../utils/logger";
+import { enableTracing } from "../utils/tracing";
 
 const logger = createLogger('TodosAccess')
 
 export const deleteTodo = async (todoId: string) => {
     logger.info("deleting todo")
-    const dynamoDB = new DocumentClient();
+    const dynamoDB = new enableTracing.DynamoDB.DocumentClient()
+
     const params = {
         TableName: 'Todos-dev',
         Key: { 'todoId': todoId, 'refKey': 'todos' },

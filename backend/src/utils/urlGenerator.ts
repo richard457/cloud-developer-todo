@@ -1,8 +1,9 @@
-import * as AWS from "aws-sdk";
-import { getSingleTodo } from "../businessLogic/getSingleTodo";
+import { getSingleTodo } from "../data_access/getSingleTodo";
+import { enableTracing } from "./tracing";
 
 export const generateUrl = async (id: string, imageType: string) => {
-    const s3 = new AWS.S3({ region: 'us-east-1' });
+
+    const s3 = new enableTracing.S3({ region: 'us-east-1' });
     const tod = `${id}`;
     const url = s3.getSignedUrl('putObject', {
         Bucket: 'attachementseou7xk8j16a4',

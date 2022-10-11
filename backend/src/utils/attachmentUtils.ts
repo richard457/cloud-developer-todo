@@ -1,5 +1,5 @@
 import * as AWS from "aws-sdk";
-import { getSingleTodo } from "../businessLogic/getSingleTodo";
+import { getSingleTodo } from "../data_access/getSingleTodo";
 import { updateTodo } from "../businessLogic/updateTodo";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
 import { createLogger } from "./logger";
