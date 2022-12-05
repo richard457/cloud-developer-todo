@@ -1,0 +1,13 @@
+service: academy-app
+org: richie457
+app: whatsapp
+provider:
+  name: aws
+
+constructs:
+  react:
+    type: single-page-app
+    path: build
+
+plugins:
+  - serverless-lift

@@ -1,0 +1,587 @@
+{
+  "service": {
+    "service": "academy-app",
+    "serviceObject": {
+      "name": "academy-app"
+    },
+    "provider": {
+      "name": "aws",
+      "stage": "dev",
+      "region": "us-east-1",
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "reactBucket7291A196": {
+            "Type": "AWS::S3::Bucket",
+            "UpdateReplacePolicy": "Delete",
+            "DeletionPolicy": "Delete"
+          },
+          "reactBucketPolicy2A7A3230": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "reactBucket7291A196"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:GetObject",
+                    "Effect": "Allow",
+                    "Principal": {
+                      "CanonicalUser": {
+                        "Fn::GetAtt": [
+                          "reactCDNOrigin1S3OriginE237FF65",
+                          "S3CanonicalUserId"
+                        ]
+                      }
+                    },
+                    "Resource": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Fn::GetAtt": [
+                              "reactBucket7291A196",
+                              "Arn"
+                            ]
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  }
+                ],
+                "Version": "2012-10-17"
+              }
+            }
+          },
+          "reactResponseFunction3D35D24A": {
+            "Type": "AWS::CloudFront::Function",
+            "Properties": {
+              "Name": "academy-app-dev-us-east-1-react-response",
+              "AutoPublish": true,
+              "FunctionCode": "function handler(event) {\n    var response = event.response;\n    response.headers = Object.assign({}, {\n    \"x-frame-options\": {\n        \"value\": \"SAMEORIGIN\"\n    },\n    \"x-content-type-options\": {\n        \"value\": \"nosniff\"\n    },\n    \"x-xss-protection\": {\n        \"value\": \"1; mode=block\"\n    },\n    \"strict-transport-security\": {\n        \"value\": \"max-age=63072000\"\n    }\n}, response.headers);\n    return response;\n}",
+              "FunctionConfig": {
+                "Comment": "academy-app-dev-us-east-1-react-response",
+                "Runtime": "cloudfront-js-1.0"
+              }
+            }
+          },
+          "reactCDNOrigin1S3OriginE237FF65": {
+            "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+            "Properties": {
+              "CloudFrontOriginAccessIdentityConfig": {
+                "Comment": "Identity for reactCDNOrigin16AC21DE0"
+              }
+            }
+          },
+          "reactCDNFFAA7D6D": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+              "DistributionConfig": {
+                "Comment": "academy-app-dev react website CDN",
+                "CustomErrorResponses": [
+                  {
+                    "ErrorCachingMinTTL": 0,
+                    "ErrorCode": 404,
+                    "ResponseCode": 200,
+                    "ResponsePagePath": "/index.html"
+                  }
+                ],
+                "DefaultCacheBehavior": {
+                  "AllowedMethods": [
+                    "GET",
+                    "HEAD",
+                    "OPTIONS"
+                  ],
+                  "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                  "Compress": true,
+                  "FunctionAssociations": [
+                    {
+                      "EventType": "viewer-response",
+                      "FunctionARN": {
+                        "Fn::GetAtt": [
+                          "reactResponseFunction3D35D24A",
+                          "FunctionARN"
+                        ]
+                      }
+                    },
+                    {
+                      "EventType": "viewer-request",
+                      "FunctionARN": {
+                        "Fn::GetAtt": [
+                          "reactRequestFunctionEF389734",
+                          "FunctionARN"
+                        ]
+                      }
+                    }
+                  ],
+                  "TargetOriginId": "reactCDNOrigin16AC21DE0",
+                  "ViewerProtocolPolicy": "redirect-to-https"
+                },
+                "DefaultRootObject": "index.html",
+                "Enabled": true,
+                "HttpVersion": "http2",
+                "IPV6Enabled": true,
+                "Origins": [
+                  {
+                    "DomainName": {
+                      "Fn::GetAtt": [
+                        "reactBucket7291A196",
+                        "RegionalDomainName"
+                      ]
+                    },
+                    "Id": "reactCDNOrigin16AC21DE0",
+                    "S3OriginConfig": {
+                      "OriginAccessIdentity": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "origin-access-identity/cloudfront/",
+                            {
+                              "Ref": "reactCDNOrigin1S3OriginE237FF65"
+                            }
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "reactRequestFunctionEF389734": {
+            "Type": "AWS::CloudFront::Function",
+            "Properties": {
+              "Name": "academy-app-dev-us-east-1-react-request",
+              "AutoPublish": true,
+              "FunctionCode": "var REDIRECT_REGEX = /^[^.]+$|\\.(?!(css|gif|ico|jpg|jpeg|js|png|txt|svg|woff|woff2|ttf|map|json|xml|pdf)$)([^.]+$)/;\n\nfunction handler(event) {\n    var uri = event.request.uri;\n    var request = event.request;\n    var isUriToRedirect = REDIRECT_REGEX.test(uri);\n\n    if (isUriToRedirect) {\n        request.uri = \"/index.html\";\n    }\n\n    return event.request;\n}",
+              "FunctionConfig": {
+                "Comment": "academy-app-dev-us-east-1-react-request",
+                "Runtime": "cloudfront-js-1.0"
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            },
+            "Export": {
+              "Name": "sls-academy-app-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "reactBucketName5DD7F168": {
+            "Description": "Name of the bucket that stores the static website.",
+            "Value": {
+              "Ref": "reactBucket7291A196"
+            }
+          },
+          "reactDomainE9B73934": {
+            "Description": "Website domain name.",
+            "Value": {
+              "Fn::GetAtt": [
+                "reactCDNFFAA7D6D",
+                "DomainName"
+              ]
+            }
+          },
+          "reactCloudFrontCName179A70B6": {
+            "Description": "CloudFront CNAME.",
+            "Value": {
+              "Fn::GetAtt": [
+                "reactCDNFFAA7D6D",
+                "DomainName"
+              ]
+            }
+          },
+          "reactDistributionIdC3D09547": {
+            "Description": "ID of the CloudFront distribution.",
+            "Value": {
+              "Ref": "reactCDNFFAA7D6D"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      },
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            }
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      }
+    },
+    "plugins": [
+      "serverless-lift"
+    ],
+    "pluginsData": {},
+    "functions": {},
+    "resources": {
+      "Resources": {
+        "reactBucket7291A196": {
+          "Type": "AWS::S3::Bucket",
+          "UpdateReplacePolicy": "Delete",
+          "DeletionPolicy": "Delete"
+        },
+        "reactBucketPolicy2A7A3230": {
+          "Type": "AWS::S3::BucketPolicy",
+          "Properties": {
+            "Bucket": {
+              "Ref": "reactBucket7291A196"
+            },
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "s3:GetObject",
+                  "Effect": "Allow",
+                  "Principal": {
+                    "CanonicalUser": {
+                      "Fn::GetAtt": [
+                        "reactCDNOrigin1S3OriginE237FF65",
+                        "S3CanonicalUserId"
+                      ]
+                    }
+                  },
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        {
+                          "Fn::GetAtt": [
+                            "reactBucket7291A196",
+                            "Arn"
+                          ]
+                        },
+                        "/*"
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          }
+        },
+        "reactResponseFunction3D35D24A": {
+          "Type": "AWS::CloudFront::Function",
+          "Properties": {
+            "Name": "academy-app-dev-us-east-1-react-response",
+            "AutoPublish": true,
+            "FunctionCode": "function handler(event) {\n    var response = event.response;\n    response.headers = Object.assign({}, {\n    \"x-frame-options\": {\n        \"value\": \"SAMEORIGIN\"\n    },\n    \"x-content-type-options\": {\n        \"value\": \"nosniff\"\n    },\n    \"x-xss-protection\": {\n        \"value\": \"1; mode=block\"\n    },\n    \"strict-transport-security\": {\n        \"value\": \"max-age=63072000\"\n    }\n}, response.headers);\n    return response;\n}",
+            "FunctionConfig": {
+              "Comment": "academy-app-dev-us-east-1-react-response",
+              "Runtime": "cloudfront-js-1.0"
+            }
+          }
+        },
+        "reactCDNOrigin1S3OriginE237FF65": {
+          "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+          "Properties": {
+            "CloudFrontOriginAccessIdentityConfig": {
+              "Comment": "Identity for reactCDNOrigin16AC21DE0"
+            }
+          }
+        },
+        "reactCDNFFAA7D6D": {
+          "Type": "AWS::CloudFront::Distribution",
+          "Properties": {
+            "DistributionConfig": {
+              "Comment": "academy-app-dev react website CDN",
+              "CustomErrorResponses": [
+                {
+                  "ErrorCachingMinTTL": 0,
+                  "ErrorCode": 404,
+                  "ResponseCode": 200,
+                  "ResponsePagePath": "/index.html"
+                }
+              ],
+              "DefaultCacheBehavior": {
+                "AllowedMethods": [
+                  "GET",
+                  "HEAD",
+                  "OPTIONS"
+                ],
+                "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+                "Compress": true,
+                "FunctionAssociations": [
+                  {
+                    "EventType": "viewer-response",
+                    "FunctionARN": {
+                      "Fn::GetAtt": [
+                        "reactResponseFunction3D35D24A",
+                        "FunctionARN"
+                      ]
+                    }
+                  },
+                  {
+                    "EventType": "viewer-request",
+                    "FunctionARN": {
+                      "Fn::GetAtt": [
+                        "reactRequestFunctionEF389734",
+                        "FunctionARN"
+                      ]
+                    }
+                  }
+                ],
+                "TargetOriginId": "reactCDNOrigin16AC21DE0",
+                "ViewerProtocolPolicy": "redirect-to-https"
+              },
+              "DefaultRootObject": "index.html",
+              "Enabled": true,
+              "HttpVersion": "http2",
+              "IPV6Enabled": true,
+              "Origins": [
+                {
+                  "DomainName": {
+                    "Fn::GetAtt": [
+                      "reactBucket7291A196",
+                      "RegionalDomainName"
+                    ]
+                  },
+                  "Id": "reactCDNOrigin16AC21DE0",
+                  "S3OriginConfig": {
+                    "OriginAccessIdentity": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "origin-access-identity/cloudfront/",
+                          {
+                            "Ref": "reactCDNOrigin1S3OriginE237FF65"
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "reactRequestFunctionEF389734": {
+          "Type": "AWS::CloudFront::Function",
+          "Properties": {
+            "Name": "academy-app-dev-us-east-1-react-request",
+            "AutoPublish": true,
+            "FunctionCode": "var REDIRECT_REGEX = /^[^.]+$|\\.(?!(css|gif|ico|jpg|jpeg|js|png|txt|svg|woff|woff2|ttf|map|json|xml|pdf)$)([^.]+$)/;\n\nfunction handler(event) {\n    var uri = event.request.uri;\n    var request = event.request;\n    var isUriToRedirect = REDIRECT_REGEX.test(uri);\n\n    if (isUriToRedirect) {\n        request.uri = \"/index.html\";\n    }\n\n    return event.request;\n}",
+            "FunctionConfig": {
+              "Comment": "academy-app-dev-us-east-1-react-request",
+              "Runtime": "cloudfront-js-1.0"
+            }
+          }
+        }
+      },
+      "Outputs": {
+        "reactBucketName5DD7F168": {
+          "Description": "Name of the bucket that stores the static website.",
+          "Value": {
+            "Ref": "reactBucket7291A196"
+          }
+        },
+        "reactDomainE9B73934": {
+          "Description": "Website domain name.",
+          "Value": {
+            "Fn::GetAtt": [
+              "reactCDNFFAA7D6D",
+              "DomainName"
+            ]
+          }
+        },
+        "reactCloudFrontCName179A70B6": {
+          "Description": "CloudFront CNAME.",
+          "Value": {
+            "Fn::GetAtt": [
+              "reactCDNFFAA7D6D",
+              "DomainName"
+            ]
+          }
+        },
+        "reactDistributionIdC3D09547": {
+          "Description": "ID of the CloudFront distribution.",
+          "Value": {
+            "Ref": "reactCDNFFAA7D6D"
+          }
+        }
+      }
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yaml",
+    "initialServerlessConfig": {
+      "service": "academy-app",
+      "org": "richie457",
+      "app": "whatsapp",
+      "provider": {
+        "name": "aws",
+        "stage": "dev",
+        "region": "us-east-1",
+        "versionFunctions": true
+      },
+      "constructs": {
+        "react": {
+          "type": "single-page-app",
+          "path": "build"
+        }
+      },
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      }
+    },
+    "app": "whatsapp",
+    "org": "richie457",
+    "layers": {},
+    "isDashboardMonitoringPreconfigured": true,
+    "isDashboardAppPreconfigured": true,
+    "orgUid": "81570f9d-9fc6-48d2-98bd-eb01403746d9",
+    "appUid": "hHjkLv6701ZRPPzcc6"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/academy-app/dev/1670232020718-2022-12-05T09:20:20.718Z",
+    "artifact": ""
+  }
+}
