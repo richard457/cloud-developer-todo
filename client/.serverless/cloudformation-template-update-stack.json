@@ -139,6 +139,9 @@
       "Type": "AWS::CloudFront::Distribution",
       "Properties": {
         "DistributionConfig": {
+          "Aliases": [
+            "publication.academy"
+          ],
           "Comment": "academy-app-dev react website CDN",
           "CustomErrorResponses": [
             {
@@ -206,7 +209,12 @@
                 }
               }
             }
-          ]
+          ],
+          "ViewerCertificate": {
+            "AcmCertificateArn": "arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3",
+            "MinimumProtocolVersion": "TLSv1.2_2021",
+            "SslSupportMethod": "sni-only"
+          }
         }
       }
     },
@@ -240,12 +248,7 @@
     },
     "reactDomainE9B73934": {
       "Description": "Website domain name.",
-      "Value": {
-        "Fn::GetAtt": [
-          "reactCDNFFAA7D6D",
-          "DomainName"
-        ]
-      }
+      "Value": "publication.academy"
     },
     "reactCloudFrontCName179A70B6": {
       "Description": "CloudFront CNAME.",

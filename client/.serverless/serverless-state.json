@@ -150,6 +150,9 @@
             "Type": "AWS::CloudFront::Distribution",
             "Properties": {
               "DistributionConfig": {
+                "Aliases": [
+                  "publication.academy"
+                ],
                 "Comment": "academy-app-dev react website CDN",
                 "CustomErrorResponses": [
                   {
@@ -217,7 +220,12 @@
                       }
                     }
                   }
-                ]
+                ],
+                "ViewerCertificate": {
+                  "AcmCertificateArn": "arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3",
+                  "MinimumProtocolVersion": "TLSv1.2_2021",
+                  "SslSupportMethod": "sni-only"
+                }
               }
             }
           },
@@ -251,12 +259,7 @@
           },
           "reactDomainE9B73934": {
             "Description": "Website domain name.",
-            "Value": {
-              "Fn::GetAtt": [
-                "reactCDNFFAA7D6D",
-                "DomainName"
-              ]
-            }
+            "Value": "publication.academy"
           },
           "reactCloudFrontCName179A70B6": {
             "Description": "CloudFront CNAME.",
@@ -433,6 +436,9 @@
           "Type": "AWS::CloudFront::Distribution",
           "Properties": {
             "DistributionConfig": {
+              "Aliases": [
+                "publication.academy"
+              ],
               "Comment": "academy-app-dev react website CDN",
               "CustomErrorResponses": [
                 {
@@ -500,7 +506,12 @@
                     }
                   }
                 }
-              ]
+              ],
+              "ViewerCertificate": {
+                "AcmCertificateArn": "arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3",
+                "MinimumProtocolVersion": "TLSv1.2_2021",
+                "SslSupportMethod": "sni-only"
+              }
             }
           }
         },
@@ -526,12 +537,7 @@
         },
         "reactDomainE9B73934": {
           "Description": "Website domain name.",
-          "Value": {
-            "Fn::GetAtt": [
-              "reactCDNFFAA7D6D",
-              "DomainName"
-            ]
-          }
+          "Value": "publication.academy"
         },
         "reactCloudFrontCName179A70B6": {
           "Description": "CloudFront CNAME.",
@@ -565,7 +571,9 @@
       "constructs": {
         "react": {
           "type": "single-page-app",
-          "path": "build"
+          "path": "build",
+          "domain": "publication.academy",
+          "certificate": "arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3"
         }
       },
       "plugins": {
@@ -581,7 +589,7 @@
     "appUid": "hHjkLv6701ZRPPzcc6"
   },
   "package": {
-    "artifactDirectoryName": "serverless/academy-app/dev/1670232020718-2022-12-05T09:20:20.718Z",
+    "artifactDirectoryName": "serverless/academy-app/dev/1670252891996-2022-12-05T15:08:11.996Z",
     "artifact": ""
   }
 }
