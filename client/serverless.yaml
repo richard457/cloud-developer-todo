@@ -8,6 +8,8 @@ constructs:
   react:
     type: single-page-app
     path: build
+    domain: publication.academy
+    certificate: arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3
 
 plugins:
   - serverless-lift
