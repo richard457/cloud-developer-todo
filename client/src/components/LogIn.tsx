@@ -6,7 +6,7 @@ interface LogInProps {
   auth: Auth
 }
 
-interface LogInState {}
+interface LogInState { }
 
 export class LogIn extends React.PureComponent<LogInProps, LogInState> {
   onLogin = () => {
@@ -15,8 +15,9 @@ export class LogIn extends React.PureComponent<LogInProps, LogInState> {
 
   render() {
     return (
-      <div>
+      <div >
         <h1>Please log in</h1>
+
 
         <Button onClick={this.onLogin} size="huge" color="olive">
           Log in

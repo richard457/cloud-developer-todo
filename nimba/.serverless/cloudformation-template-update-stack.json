@@ -1,0 +1,269 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "ServerlessDeploymentBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketEncryption": {
+          "ServerSideEncryptionConfiguration": [
+            {
+              "ServerSideEncryptionByDefault": {
+                "SSEAlgorithm": "AES256"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ServerlessDeploymentBucketPolicy": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "ServerlessDeploymentBucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:*",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      },
+                      "/*"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "ServerlessDeploymentBucket"
+                      }
+                    ]
+                  ]
+                }
+              ],
+              "Condition": {
+                "Bool": {
+                  "aws:SecureTransport": false
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "vueBucket42BDEDC0": {
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete"
+    },
+    "vueBucketPolicy6D58E1AF": {
+      "Type": "AWS::S3::BucketPolicy",
+      "Properties": {
+        "Bucket": {
+          "Ref": "vueBucket42BDEDC0"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": {
+                "CanonicalUser": {
+                  "Fn::GetAtt": [
+                    "vueCDNOrigin1S3Origin85502CD7",
+                    "S3CanonicalUserId"
+                  ]
+                }
+              },
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    {
+                      "Fn::GetAtt": [
+                        "vueBucket42BDEDC0",
+                        "Arn"
+                      ]
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "vueResponseFunction9A9D64EC": {
+      "Type": "AWS::CloudFront::Function",
+      "Properties": {
+        "Name": "academy-app-dev-us-east-1-vue-response",
+        "AutoPublish": true,
+        "FunctionCode": "function handler(event) {\n    var response = event.response;\n    response.headers = Object.assign({}, {\n    \"x-frame-options\": {\n        \"value\": \"SAMEORIGIN\"\n    },\n    \"x-content-type-options\": {\n        \"value\": \"nosniff\"\n    },\n    \"x-xss-protection\": {\n        \"value\": \"1; mode=block\"\n    },\n    \"strict-transport-security\": {\n        \"value\": \"max-age=63072000\"\n    }\n}, response.headers);\n    return response;\n}",
+        "FunctionConfig": {
+          "Comment": "academy-app-dev-us-east-1-vue-response",
+          "Runtime": "cloudfront-js-1.0"
+        }
+      }
+    },
+    "vueCDNOrigin1S3Origin85502CD7": {
+      "Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+      "Properties": {
+        "CloudFrontOriginAccessIdentityConfig": {
+          "Comment": "Identity for vueCDNOrigin1376DE314"
+        }
+      }
+    },
+    "vueCDNAF24BBA5": {
+      "Type": "AWS::CloudFront::Distribution",
+      "Properties": {
+        "DistributionConfig": {
+          "Aliases": [
+            "publication.academy"
+          ],
+          "Comment": "academy-app-dev vue website CDN",
+          "CustomErrorResponses": [
+            {
+              "ErrorCachingMinTTL": 0,
+              "ErrorCode": 404,
+              "ResponseCode": 200,
+              "ResponsePagePath": "/index.html"
+            }
+          ],
+          "DefaultCacheBehavior": {
+            "AllowedMethods": [
+              "GET",
+              "HEAD",
+              "OPTIONS"
+            ],
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "FunctionAssociations": [
+              {
+                "EventType": "viewer-response",
+                "FunctionARN": {
+                  "Fn::GetAtt": [
+                    "vueResponseFunction9A9D64EC",
+                    "FunctionARN"
+                  ]
+                }
+              },
+              {
+                "EventType": "viewer-request",
+                "FunctionARN": {
+                  "Fn::GetAtt": [
+                    "vueRequestFunction637790A8",
+                    "FunctionARN"
+                  ]
+                }
+              }
+            ],
+            "TargetOriginId": "vueCDNOrigin1376DE314",
+            "ViewerProtocolPolicy": "redirect-to-https"
+          },
+          "DefaultRootObject": "index.html",
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Origins": [
+            {
+              "DomainName": {
+                "Fn::GetAtt": [
+                  "vueBucket42BDEDC0",
+                  "RegionalDomainName"
+                ]
+              },
+              "Id": "vueCDNOrigin1376DE314",
+              "S3OriginConfig": {
+                "OriginAccessIdentity": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "origin-access-identity/cloudfront/",
+                      {
+                        "Ref": "vueCDNOrigin1S3Origin85502CD7"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "ViewerCertificate": {
+            "AcmCertificateArn": "arn:aws:acm:us-east-1:817583267676:certificate/cf905227-afa5-4cba-bc2d-2c343e6746a3",
+            "MinimumProtocolVersion": "TLSv1.2_2021",
+            "SslSupportMethod": "sni-only"
+          }
+        }
+      }
+    },
+    "vueRequestFunction637790A8": {
+      "Type": "AWS::CloudFront::Function",
+      "Properties": {
+        "Name": "academy-app-dev-us-east-1-vue-request",
+        "AutoPublish": true,
+        "FunctionCode": "var REDIRECT_REGEX = /^[^.]+$|\\.(?!(css|gif|ico|jpg|jpeg|js|png|txt|svg|woff|woff2|ttf|map|json|xml|pdf)$)([^.]+$)/;\n\nfunction handler(event) {\n    var uri = event.request.uri;\n    var request = event.request;\n    var isUriToRedirect = REDIRECT_REGEX.test(uri);\n\n    if (isUriToRedirect) {\n        request.uri = \"/index.html\";\n    }\n\n    return event.request;\n}",
+        "FunctionConfig": {
+          "Comment": "academy-app-dev-us-east-1-vue-request",
+          "Runtime": "cloudfront-js-1.0"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": {
+        "Ref": "ServerlessDeploymentBucket"
+      },
+      "Export": {
+        "Name": "sls-academy-app-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "vueBucketNameF7494883": {
+      "Description": "Name of the bucket that stores the static website.",
+      "Value": {
+        "Ref": "vueBucket42BDEDC0"
+      }
+    },
+    "vueDomain72AD8769": {
+      "Description": "Website domain name.",
+      "Value": "publication.academy"
+    },
+    "vueCloudFrontCName7EBFAEFE": {
+      "Description": "CloudFront CNAME.",
+      "Value": {
+        "Fn::GetAtt": [
+          "vueCDNAF24BBA5",
+          "DomainName"
+        ]
+      }
+    },
+    "vueDistributionId64279F39": {
+      "Description": "ID of the CloudFront distribution.",
+      "Value": {
+        "Ref": "vueCDNAF24BBA5"
+      }
+    }
+  }
+}

@@ -8,14 +8,14 @@ import { LogIn } from './components/LogIn'
 import { NotFound } from './components/NotFound'
 import { Todos } from './components/Todos'
 
-export interface AppProps {}
+export interface AppProps { }
 
 export interface AppProps {
   auth: Auth
   history: any
 }
 
-export interface AppState {}
+export interface AppState { }
 
 export default class App extends Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -41,7 +41,7 @@ export default class App extends Component<AppProps, AppState> {
             <Grid.Row>
               <Grid.Column width={16}>
                 <Router history={this.props.history}>
-                  {this.generateMenu()}
+                  {/* {this.generateMenu()} */}
 
                   {this.generateCurrentPage()}
                 </Router>
