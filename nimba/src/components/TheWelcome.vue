@@ -26,14 +26,14 @@ import SupportIcon from './icons/IconSupport.vue'
     <template #heading>Reviews</template>
 
     Whether you want to receive review via email or whatsapp we got you covered
-    <a href="mailto:info@yegobox.com" target="_blank" rel="noopener">Email</a>. The
-    We just want to make your life easier
+    <a href="mailto:info@yegobox.com" target="_blank" rel="noopener">Email</a> We make sure you get reviewed as soon as
+    we can.
     <a href="mailto:info@yegobox.com" target="_blank" rel="noopener">WhatsApp</a> +
 
 
     <br />
 
-    More instructions are available in <code>Are provided on choosen communication channel</code>.
+    More instructions are available in <code>Communication channel</code>.
   </WelcomeItem>
 
   <WelcomeItem>
