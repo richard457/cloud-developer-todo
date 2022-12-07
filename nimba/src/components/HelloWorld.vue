@@ -9,7 +9,7 @@ defineProps<{
     <h1 class="green">{{ msg }}</h1>
     <h3>
       You are here and we are happy to have you.
-      <a href="#" target="_blank" rel="noopener">Publication Acadey</a> . What's next?
+      <a href="#" target="_blank" rel="noopener">Publication Academy</a> . What's next?
     </h3>
   </div>
 </template>
