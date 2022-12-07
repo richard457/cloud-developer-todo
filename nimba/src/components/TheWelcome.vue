@@ -15,7 +15,7 @@ import SupportIcon from './icons/IconSupport.vue'
     <template #heading>Why?</template>
 
     Publisher’s
-    <a href="#" target="_blank" rel="noopener">Our</a>
+    <a href="#" target="_blank" rel="noopener">Publication.academy</a>
     provides you with all support you need to get your journal published and review from our trusted professors.
   </WelcomeItem>
 
@@ -66,7 +66,7 @@ import SupportIcon from './icons/IconSupport.vue'
     </template>
     <template #heading>Support Publicher's Academy</template>
 
-    As we aim to make the life of the publisher around, Publisher Academy relies on community backing for its
+    As we aim to make the life of the publishers around globe, Publication.academy relies on community backing for its
     sustainability.
     <a href="mailto:info@yegobox.com" target="_blank" rel="noopener">becoming a sponsor</a>.
   </WelcomeItem>
